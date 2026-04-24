@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLAM Learning Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Controls Panel -->
+    <div class="panel w-80 h-full flex flex-col overflow-y-auto shadow-xl z-10 flex-shrink-0">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400 mb-2">SLAM Playground</h1>
+            <p class="text-sm text-slate-400">Simultaneous Localization and Mapping</p>
+        </div>
+
+        <div class="p-6 flex-1 flex flex-col gap-6">
+            
+            <!-- Algorithm Selection -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Algorithm</label>
+                <select id="algoSelect" class="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-sm focus:border-blue-500 focus:outline-none">
+                    <option value="odometry">1. Dead Reckoning (Odometry Only)</option>
+                    <option value="mcl">2. MCL Localization (Known Map)</option>
+                    <option value="fastslam" selected>3. FastSLAM (Unknown Map)</option>
+                </select>
+                <p id="algoDesc" class="mt-2 text-xs text-slate-400 leading-relaxed"></p>
+            </div>
+
+            <!-- Simulation Controls -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Controls</label>
+                <div class="flex gap-2 mb-2">
+                    <button id="btnAutoDrive" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-md text-sm transition-colors font-medium shadow-lg shadow-blue-500/20">
+                        Auto-Drive: ON
+                    </button>
+                    <button id="btnReset" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-md text-sm transition-colors">
+                        Reset Sim
+                    </button>
+                </div>
+                <p class="text-xs text-slate-500">Manual drive: <span class="kbd">W</span> <span class="kbd">A</span> <span class="kbd">S</span> <span class="kbd">D</span> or Arrow Keys.</p>
+            </div>
+
+            <hr class="border-slate-700">
+
+            <!-- Parameters -->
+            <div>
+                <h3 class="text-sm font-semibold mb-4 text-slate-300">Environment Parameters</h3>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between mb-1">
+                        <label class="text-xs text-slate-400">Motion Noise (Odometry)</label>
+                        <span id="valMotionNoise" class="text-xs text-emerald-400 font-mono">0.10</span>
+                    </div>
+                    <input type="range" id="slMotionNoise" min="0" max="0.5" step="0.01" value="0.1" class="range-slider">
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between mb-1">
+                        <label class="text-xs text-slate-400">Sensor Noise (Measurement)</label>
+                        <span id="valSensorNoise" class="text-xs text-emerald-400 font-mono">5.0</span>
+                    </div>
+                    <input type="range" id="slSensorNoise" min="0" max="20" step="0.5" value="5.0" class="range-slider">
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between mb-1">
+                        <label class="text-xs text-slate-400">Particle Count (Resolution)</label>
+                        <span id="valParticles" class="text-xs text-emerald-400 font-mono">150</span>
+                    </div>
+                    <input type="range" id="slParticles" min="10" max="500" step="10" value="150" class="range-slider">
+                </div>
+                
+                <div class="mb-2">
+                    <div class="flex justify-between mb-1">
+                        <label class="text-xs text-slate-400">Sensor Range</label>
+                        <span id="valSensorRange" class="text-xs text-emerald-400 font-mono">250</span>
+                    </div>
+                    <input type="range" id="slSensorRange" min="50" max="600" step="10" value="250" class="range-slider">
+                </div>
+            </div>
+
+            <hr class="border-slate-700">
+
+            <!-- Legend -->
+            <div class="bg-slate-900/50 p-3 rounded-md border border-slate-800">
+                <h3 class="text-xs font-semibold mb-2 text-slate-400 uppercase tracking-wider">Legend</h3>
+                <ul class="text-xs space-y-2">
+                    <li class="flex items-center gap-2"><div class="w-3 h-3 border-2 border-blue-400 rounded-full"></div> Real Robot Pose</li>
+                    <li class="flex items-center gap-2"><div class="w-3 h-3 bg-slate-400 rounded-sm"></div> Real Landmark</li>
+                    <li class="flex items-center gap-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div> Odometry Estimate</li>
+                    <li class="flex items-center gap-2"><div class="w-3 h-3 bg-emerald-400 rounded-full"></div> SLAM Estimate Pose</li>
+                    <li class="flex items-center gap-2"><div class="w-3 h-3 border-2 border-emerald-400 rounded-full"></div> SLAM Mapped Landmark</li>
+                    <li class="flex items-center gap-2"><div class="w-3 h-3 bg-yellow-400/30 rounded-full"></div> Particles</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="flex-1 relative">
+        <canvas id="simCanvas"></canvas>
+        <div id="statusOverlay" class="absolute top-4 right-4 bg-slate-900/80 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded shadow-lg flex flex-col gap-1 font-mono">
+            <div>FPS: <span id="fpsCount" class="text-emerald-400">60</span></div>
+            <div>Mode: <span id="modeDisplay" class="text-blue-400">FastSLAM</span></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
