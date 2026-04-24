@@ -87,9 +87,10 @@ class Particle {
 
 function initSimulation() {
     const container = canvas.parentElement;
-    // Use a fallback of 800x600 if the layout hasn't fully computed yet
-    canvas.width = Math.max(container.clientWidth, 800);
-    canvas.height = Math.max(container.clientHeight, 600);
+    
+    // Ensure canvas dimensions match the actual container size, with a fallback
+    canvas.width = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
+    canvas.height = container.clientHeight > 0 ? container.clientHeight : window.innerHeight;
 
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
@@ -583,6 +584,9 @@ function setupUI() {
         if (container.clientWidth > 0 && container.clientHeight > 0) {
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
+        } else {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
     });
 }
