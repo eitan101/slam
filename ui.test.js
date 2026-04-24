@@ -22,6 +22,8 @@ describe('UI Tests with Puppeteer', () => {
       args: ['--no-sandbox', '--disable-setuid-sandbox'] // Good defaults for test environments
     });
     page = await browser.newPage();
+    // Ensure viewport is large enough so panel is visible (not hidden by responsive classes)
+    await page.setViewport({ width: 1280, height: 800 });
   });
 
   afterAll(async () => {
