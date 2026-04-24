@@ -6,8 +6,6 @@ body {
     color: #f8fafc; /* Slate 50 */
     margin: 0;
     overflow: hidden;
-    display: flex;
-    height: 100vh;
 }
 
 .panel {
