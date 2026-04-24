@@ -81,4 +81,45 @@ describe('UI Tests with Puppeteer', () => {
     descText = await page.$eval(descSelector, el => el.innerText);
     expect(descText).toContain('Monte Carlo Localization');
   });
+
+  describe('Mobile UI Tests', () => {
+    let mobilePage;
+
+    beforeAll(async () => {
+      mobilePage = await browser.newPage();
+      // Set viewport to a typical mobile device (e.g., iPhone SE)
+      await mobilePage.setViewport({ width: 375, height: 667 });
+    });
+
+    afterAll(async () => {
+      if (mobilePage) await mobilePage.close();
+    });
+
+    it('should toggle the control panel visibility on mobile', async () => {
+      await mobilePage.goto(`http://localhost:${PORT}`);
+      
+      const panelSelector = '#controlsPanel';
+      const toggleSelector = '#btnTogglePanel';
+
+      await mobilePage.waitForSelector(toggleSelector);
+      
+      // Initial state: panel should have the 'hidden' class on mobile
+      let isHidden = await mobilePage.$eval(panelSelector, el => el.classList.contains('hidden'));
+      expect(isHidden).toBe(true);
+
+      // Click the toggle button to show controls
+      await mobilePage.click(toggleSelector);
+
+      // State after 1st click: panel should NOT have the 'hidden' class
+      isHidden = await mobilePage.$eval(panelSelector, el => el.classList.contains('hidden'));
+      expect(isHidden).toBe(false);
+
+      // Click again to hide controls
+      await mobilePage.click(toggleSelector);
+
+      // State after 2nd click: panel should be hidden again
+      isHidden = await mobilePage.$eval(panelSelector, el => el.classList.contains('hidden'));
+      expect(isHidden).toBe(true);
+    });
+  });
 });
