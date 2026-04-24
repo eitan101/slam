@@ -550,6 +550,17 @@ function setupUI() {
     bindSlider('slParticles', 'valParticles', 'numParticles', true);
     bindSlider('slSensorRange', 'valSensorRange', 'sensorRange', true);
 
+    // Mobile Toggle
+    const btnToggle = document.getElementById('btnTogglePanel');
+    const panel = document.getElementById('controlsPanel');
+    if (btnToggle && panel) {
+        btnToggle.addEventListener('click', () => {
+            panel.classList.toggle('hidden');
+            // Trigger resize to fix canvas layout
+            window.dispatchEvent(new Event('resize'));
+        });
+    }
+
     // Keyboard
     window.addEventListener('keydown', (e) => {
         if (keys.hasOwnProperty(e.key.toLowerCase())) {
